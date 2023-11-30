@@ -1,17 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Image, FlatList, Dimensions, Text, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Image,
+  FlatList,
+  Dimensions,
+  Text,
+  TouchableOpacity,
+  PermissionsAndroid,
+} from 'react-native';
 import Modal from 'react-native-modal';
 import Loader from './component/Loader';
 import { loadUnsplaceWall } from './assets/api';
+import { setWall } from 'rn-set-wallpaper'; // Make sure this import is correct
 
 const { height, width } = Dimensions.get('window');
 
 const App = () => {
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState([]);
-  // const [isModalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-
 
   const loadWallpapers = async () => {
     try {
@@ -27,6 +35,22 @@ const App = () => {
   useEffect(() => {
     loadWallpapers();
   }, []);
+
+
+  const setUsWallpaper = async (selectedImageMap) => {
+    try {
+      if (selectedImageMap && selectedImageMap.uri) {
+        const uri = selectedImageMap.uri;
+        await setWall({ uri });
+        console.log('Wallpaper set successfully!');
+      } else {
+        console.error('No image selected to set as wallpaper.');
+      }
+    } catch (error) {
+      console.error('Error setting wallpaper:', error);
+    }
+  };
+  
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
@@ -47,6 +71,11 @@ const App = () => {
         <TouchableOpacity style={styles.closeButton} onPress={onClose}>
           <Text style={styles.closeButtonText}>Close</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.setusScreen} onPress={setUsWallpaper}>
+          <Text style={styles.setusScreenText}>SetUsScreen</Text>
+        </TouchableOpacity>
+
         <Image style={styles.fullImage} source={{ uri: imageUri }} resizeMode="contain" />
       </View>
     </Modal>
@@ -54,26 +83,26 @@ const App = () => {
 
   return (
     <View style={{ flex: 1 }}>
-    {loading ? (
-      <View style={styles.loader}>
-        <Loader />
-      </View>
-    ) : (
-      <>
-        <FlatList
-          data={images}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-          numColumns={2}
-        />
-        <ImageViewer
-          visible={!!selectedImage}
-          imageUri={selectedImage}
-          onClose={() => setSelectedImage(null)}
-        />
-      </>
-    )}
-  </View>
+      {loading ? (
+        <View style={styles.loader}>
+          <Loader />
+        </View>
+      ) : (
+        <>
+          <FlatList
+            data={images}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id.toString()}
+            numColumns={2}
+          />
+          <ImageViewer
+            visible={!!selectedImage}
+            imageUri={selectedImage}
+            onClose={() => setSelectedImage(null)}
+          />
+        </>
+      )}
+    </View>
   );
 };
 
@@ -99,6 +128,17 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
   },
+  setusScreen: {
+    position: 'absolute',
+    bottom: 20,
+    marginHorizontal: 20,
+    zIndex: 2,
+  },
+  setusScreenText: {
+    color: 'white',
+    fontSize: 16,
+  },
+
   fullImage: {
     flex: 1,
     width: '100%',
@@ -107,4 +147,3 @@ const styles = StyleSheet.create({
 });
 
 export default App;
-

@@ -36,20 +36,6 @@ const App = () => {
     loadWallpapers();
   }, []);
 
-
-  const setUsWallpaper = async (selectedImageMap) => {
-    try {
-      if (selectedImageMap && selectedImageMap.uri) {
-        const uri = selectedImageMap.uri;
-        await setWall({ uri });
-        console.log('Wallpaper set successfully!');
-      } else {
-        console.error('No image selected to set as wallpaper.');
-      }
-    } catch (error) {
-      console.error('Error setting wallpaper:', error);
-    }
-  };
   
 
   const renderItem = ({ item }) => (
@@ -64,7 +50,22 @@ const App = () => {
       />
     </TouchableOpacity>
   );
-
+  
+  const setUsWallpaper = async () => {
+    try {
+      if (selectedImage && selectedImage.item && selectedImage.item.imageUrl) {
+        const imageUrl = selectedImage.item.imageUrl;
+        await setWall({ uri: imageUrl });
+        console.log('Wallpaper set successfully!');
+      } else {
+        console.error('No image selected to set as wallpaper.');
+      }
+    } catch (error) {
+      console.error('Error setting wallpaper:', error);
+    }
+  };
+  
+  
   const ImageViewer = ({ visible, imageUri, onClose }) => (
     <Modal transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.modalContainer}>
@@ -80,6 +81,9 @@ const App = () => {
       </View>
     </Modal>
   );
+
+  
+ 
 
   return (
     <View style={{ flex: 1 }}>

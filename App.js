@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import ManageWallpaper, { TYPE } from 'react-native-manage-wallpaper';
 import {
   View,
   StyleSheet,
@@ -7,15 +8,12 @@ import {
   Dimensions,
   Text,
   TouchableOpacity,
-  PermissionsAndroid,
 } from 'react-native';
 import Modal from 'react-native-modal';
 import Loader from './component/Loader';
 import { loadUnsplaceWall } from './assets/api';
-import { setWall } from 'rn-set-wallpaper'; // Make sure this import is correct
 
 const { height, width } = Dimensions.get('window');
-
 const App = () => {
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState([]);
@@ -36,12 +34,13 @@ const App = () => {
     loadWallpapers();
   }, []);
 
-  
-
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      style={{ height: 200, width: width / 2, margin: 5 }}
-      onPress={() => setSelectedImage(item.imageUrl)}
+      style={styles.img}
+      onPress={() =>{ setSelectedImage(item.imageUrl);
+      console.log('setSelectedImage:',item.imageUrl);
+      }}
+      item={item.imageUrl}
     >
       <Image
         style={{ flex: 1, borderRadius: 10 }}
@@ -50,21 +49,18 @@ const App = () => {
       />
     </TouchableOpacity>
   );
-  
-  const setUsWallpaper = async () => {
-    try {
-      if (selectedImage && selectedImage.item && selectedImage.item.imageUrl) {
-        const imageUrl = selectedImage.item.imageUrl;
-        await setWall({ uri: imageUrl });
-        console.log('Wallpaper set successfully!');
-      } else {
-        console.error('No image selected to set as wallpaper.');
-      }
-    } catch (error) {
-      console.error('Error setting wallpaper:', error);
-    }
-  };
-  
+  const callback = res => {
+        console.log('Response: ', res);
+      };
+  const setWallpaper = () => {
+       ManageWallpaper.setWallpaper(
+          {
+            uri: selectedImage,
+          },
+          callback,
+          TYPE.HOME,
+        );
+      };
   
   const ImageViewer = ({ visible, imageUri, onClose }) => (
     <Modal transparent={true} visible={visible} onRequestClose={onClose}>
@@ -73,8 +69,8 @@ const App = () => {
           <Text style={styles.closeButtonText}>Close</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.setusScreen} onPress={setUsWallpaper}>
-          <Text style={styles.setusScreenText}>SetUsScreen</Text>
+        <TouchableOpacity style={styles.setusScreen} onPress={setWallpaper}>
+          <Text style={styles.setusScreenText}>Set Wallpaper</Text>
         </TouchableOpacity>
 
         <Image style={styles.fullImage} source={{ uri: imageUri }} resizeMode="contain" />
@@ -82,11 +78,8 @@ const App = () => {
     </Modal>
   );
 
-  
- 
-
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1 , backgroundColor: 'black',}}>
       {loading ? (
         <View style={styles.loader}>
           <Loader />
@@ -118,10 +111,16 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
+    borderRadius:20,
     backgroundColor: 'black',
     justifyContent: 'center',
     alignItems: 'center',
   },
+  img:{
+    backgroundColor: 'black',
+     height: height/2,
+      width: width / 2,
+       margin: 5,   },
   closeButton: {
     position: 'absolute',
     top: 20,
@@ -142,12 +141,10 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
   },
-
   fullImage: {
     flex: 1,
     width: '100%',
     height: '100%',
   },
 });
-
 export default App;

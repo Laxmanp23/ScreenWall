@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import ManageWallpaper, { TYPE } from 'react-native-manage-wallpaper';
 import {
   View,
@@ -98,7 +98,7 @@ const App = () => {
             onClose={() => setSelectedImage(null)}
           />
         </>
-      )}
+      {/* )} */}
     </View>
   );
 };
